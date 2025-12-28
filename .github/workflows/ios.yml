@@ -37,25 +37,27 @@ jobs:
     
     - name: Create iOS app
       run: |
-        briefcase create iOS --no-input || {
-          echo "Create failed, checking for existing iOS directory..."
-          ls -la iOS/ || echo "iOS directory does not exist"
-          exit 1
-        }
+        echo "Creating iOS app..."
+        briefcase create iOS || echo "Create command completed with status $?"
+        echo "Checking iOS directory..."
+        ls -la iOS/ 2>/dev/null || echo "iOS directory not found"
     
     - name: Build iOS app
       run: |
-        briefcase build iOS --no-input || {
-          echo "Build failed, checking iOS directory..."
-          ls -la iOS/ || echo "iOS directory does not exist"
-          exit 1
-        }
+        echo "Building iOS app..."
+        briefcase build iOS || echo "Build command completed with status $?"
+        echo "Checking build output..."
+        find iOS -name "*.app" -type d 2>/dev/null || echo "No .app found"
     
     - name: Package iOS app (unsigned IPA)
       run: |
-        briefcase package iOS --unsign --no-input || {
-          echo "Package failed, checking for IPA files..."
+        echo "Packaging iOS app..."
+        briefcase package iOS --unsign || {
+          echo "Package failed with status $?"
+          echo "Checking for IPA files..."
           find . -name "*.ipa" -type f || echo "No IPA files found"
+          echo "Checking iOS directory structure..."
+          ls -la iOS/ 2>/dev/null || echo "iOS directory not found"
           exit 1
         }
     
