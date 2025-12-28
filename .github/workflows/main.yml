@@ -1,0 +1,57 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Briefcase
+      run: |
+        python -m pip install --upgrade pip
+        pip install briefcase
+    
+    - name: Install iOS dependencies
+      run: |
+        pip install toga-iOS
+    
+    - name: Create iOS app
+      run: |
+        briefcase create iOS
+    
+    - name: Build iOS app
+      run: |
+        briefcase build iOS
+    
+    - name: Package iOS app (unsigned IPA)
+      run: |
+        briefcase package iOS --unsign
+    
+    - name: Find IPA file
+      id: find_ipa
+      run: |
+        IPA_PATH=$(find . -name "*.ipa" -type f | head -n 1)
+        echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+        echo "Found IPA: $IPA_PATH"
+    
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: creatine-water-reminder-ipa
+        path: ${{ steps.find_ipa.outputs.ipa_path }}
+        retention-days: 30
+
