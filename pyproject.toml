@@ -1,0 +1,28 @@
+[build-system]
+requires = ["briefcase"]
+
+[tool.briefcase]
+project_name = "Creatine Water Reminder"
+bundle = "com.onur.creatine"
+version = "0.1.0"
+url = "https://github.com/onur/creatine-water-reminder"
+license = "MIT"
+author = "Onur"
+author_email = "onur@example.com"
+
+[tool.briefcase.app.creatine]
+formal_name = "Creatine Water Reminder"
+description = "Su içme hatırlatıcısı ve antrenman planı"
+sources = ["src"]
+requires = [
+    "toga>=0.3.1",
+]
+startup = "creatine.app.main"
+
+[tool.briefcase.app.creatine.iOS]
+requires = [
+    "toga-iOS>=0.3.1",
+]
+supported_devices = ["iPhone", "iPad"]
+requires_ios = "13.0"
+
