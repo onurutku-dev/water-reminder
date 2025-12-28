@@ -6,14 +6,17 @@ project_name = "Creatine Water Reminder"
 bundle = "com.onur.creatine"
 version = "0.1.0"
 url = "https://github.com/onur/creatine-water-reminder"
-license = "MIT"
+license = {text = "MIT"}
 author = "Onur"
 author_email = "onur@example.com"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [tool.briefcase.app.creatine]
 formal_name = "Creatine Water Reminder"
 description = "Su içme hatırlatıcısı ve antrenman planı"
-sources = ["src"]
+sources = ["creatine"]
 requires = [
     "toga>=0.3.1",
 ]
