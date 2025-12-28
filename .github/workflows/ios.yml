@@ -20,26 +20,44 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install Briefcase
+    - name: Install Briefcase and dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install briefcase
+        pip install briefcase toga-iOS
     
-    - name: Install iOS dependencies
+    - name: Verify installations
       run: |
-        pip install toga-iOS
+        python --version
+        briefcase --version
+        echo "Current directory: $(pwd)"
+        echo "Files in project:"
+        ls -la
+        echo "pyproject.toml content:"
+        cat pyproject.toml || echo "pyproject.toml not found"
     
     - name: Create iOS app
       run: |
-        briefcase create iOS
+        briefcase create iOS --no-input || {
+          echo "Create failed, checking for existing iOS directory..."
+          ls -la iOS/ || echo "iOS directory does not exist"
+          exit 1
+        }
     
     - name: Build iOS app
       run: |
-        briefcase build iOS
+        briefcase build iOS --no-input || {
+          echo "Build failed, checking iOS directory..."
+          ls -la iOS/ || echo "iOS directory does not exist"
+          exit 1
+        }
     
     - name: Package iOS app (unsigned IPA)
       run: |
-        briefcase package iOS --unsign
+        briefcase package iOS --unsign --no-input || {
+          echo "Package failed, checking for IPA files..."
+          find . -name "*.ipa" -type f || echo "No IPA files found"
+          exit 1
+        }
     
     - name: Find IPA file
       id: find_ipa
