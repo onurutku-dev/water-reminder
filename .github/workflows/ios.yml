@@ -52,14 +52,17 @@ jobs:
     - name: Package iOS app (unsigned IPA)
       run: |
         echo "Packaging iOS app..."
-        briefcase package iOS --unsign || {
-          echo "Package failed with status $?"
-          echo "Checking for IPA files..."
-          find . -name "*.ipa" -type f || echo "No IPA files found"
-          echo "Checking iOS directory structure..."
-          ls -la iOS/ 2>/dev/null || echo "iOS directory not found"
-          exit 1
-        }
+        # Briefcase package komutu (--unsign parametresi yok)
+        # Önce Xcode projesinde imza ayarlarını kontrol et ve gerekirse devre dışı bırak
+        if [ -f "iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj" ]; then
+          echo "Modifying Xcode project to disable code signing..."
+          # macOS sed syntax
+          sed -i '' 's/CODE_SIGN_IDENTITY = "[^"]*"/CODE_SIGN_IDENTITY = ""/g' iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGNING_REQUIRED = YES/CODE_SIGNING_REQUIRED = NO/g' iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGNING_ALLOWED = YES/CODE_SIGNING_ALLOWED = NO/g' iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj
+        fi
+        # Briefcase package komutu
+        briefcase package iOS
     
     - name: Find IPA file
       id: find_ipa
