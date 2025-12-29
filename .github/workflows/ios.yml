@@ -55,22 +55,40 @@ jobs:
       run: |
         echo "Packaging iOS app..."
         export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
-        # Önce Xcode projesinde imza ayarlarını kontrol et ve gerekirse devre dışı bırak
+        
+        # Önce mevcut durumu kontrol et
+        echo "Checking iOS directory before package:"
+        find iOS -type f -o -type d | head -20
+        
+        # Xcode projesinde imza ayarlarını devre dışı bırak
         if [ -f "iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj" ]; then
           echo "Modifying Xcode project to disable code signing..."
-          # macOS sed syntax
           sed -i '' 's/CODE_SIGN_IDENTITY = "[^"]*"/CODE_SIGN_IDENTITY = ""/g' iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj
           sed -i '' 's/CODE_SIGNING_REQUIRED = YES/CODE_SIGNING_REQUIRED = NO/g' iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj
           sed -i '' 's/CODE_SIGNING_ALLOWED = YES/CODE_SIGNING_ALLOWED = NO/g' iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj
+        else
+          echo "Xcode project file not found at expected location"
+          echo "Searching for Xcode project:"
+          find iOS -name "*.xcodeproj" -o -name "*.xcworkspace" 2>/dev/null || echo "No Xcode project found"
         fi
+        
         # Briefcase package komutu
-        briefcase package iOS || echo "Briefcase package completed with status $?"
-        # Briefcase bazen IPA oluşturmaz, manuel oluşturalım
-        echo "Checking for .app file..."
-        APP_PATH=$(find iOS -name "*.app" -type d | head -n 1)
+        echo "Running briefcase package iOS..."
+        briefcase package iOS 2>&1 || {
+          PACKAGE_STATUS=$?
+          echo "Briefcase package exited with status: $PACKAGE_STATUS"
+        }
+        
+        # Package sonrası durumu kontrol et
+        echo "Checking iOS directory after package:"
+        find iOS -type f -o -type d | head -30
+        
+        # .app dosyasını ara
+        echo "Searching for .app file..."
+        APP_PATH=$(find . -name "*.app" -type d | head -n 1)
         if [ -n "$APP_PATH" ]; then
           echo "Found .app at: $APP_PATH"
-          echo "Creating IPA manually..."
+          echo "Creating IPA manually from .app..."
           APP_NAME=$(basename "$APP_PATH" .app)
           IPA_NAME="${APP_NAME}.ipa"
           # Payload klasörü oluştur ve .app'i kopyala
@@ -79,11 +97,13 @@ jobs:
           # IPA oluştur
           zip -r "$IPA_NAME" Payload
           echo "IPA created: $IPA_NAME"
+          ls -lh "$IPA_NAME"
           # Payload klasörünü temizle
           rm -rf Payload
         else
-          echo "No .app file found, listing iOS directory:"
-          find iOS -type f -o -type d | head -20
+          echo "No .app file found anywhere!"
+          echo "Searching in build directory:"
+          find build -type f -o -type d 2>/dev/null | head -20 || echo "No build directory"
         fi
     
     - name: Find IPA file
