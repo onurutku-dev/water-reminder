@@ -5,16 +5,30 @@ import json
 import os
 from pathlib import Path
 
+# #region agent log
+def _debug_log(location, message, hypothesis_id, data=None):
+    try:
+        if hasattr(os, 'environ') and 'HOME' in os.environ:
+            log_path = os.path.join(os.environ['HOME'], 'Documents', 'debug.log')
+        else:
+            try:
+                log_path = os.path.join(os.path.expanduser('~'), 'Documents', 'debug.log')
+            except:
+                log_path = 'debug.log'
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":hypothesis_id,"location":location,"message":message,"data":data or {},"timestamp":int(__import__('time').time()*1000)})+"\n")
+    except Exception as e:
+        print(f"DEBUG LOG ERROR: {e}")
+# #endregion
+
 
 class Storage:
     """Kullanıcı ayarlarını JSON dosyasında saklar"""
     
     def __init__(self):
         # #region agent log
-        import json, time, traceback
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:13","message":"Storage.__init__() called","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("storage.py:13", "Storage.__init__() called", "C")
         except: pass
         # #endregion
         # iOS için Documents dizini
@@ -24,8 +38,7 @@ class Storage:
                 self.storage_path = Path(os.environ['HOME']) / 'Documents' / 'creatine_settings.json'
                 # #region agent log
                 try:
-                    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:19","message":"Using HOME env","data":{"path":str(self.storage_path)},"timestamp":int(time.time()*1000)})+"\n")
+                    _debug_log("storage.py:19", "Using HOME env", "C", {"path":str(self.storage_path)})
                 except: pass
                 # #endregion
             else:
@@ -33,15 +46,13 @@ class Storage:
                 self.storage_path = Path.home() / 'Documents' / 'creatine_settings.json'
                 # #region agent log
                 try:
-                    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:24","message":"Using Path.home()","data":{"path":str(self.storage_path)},"timestamp":int(time.time()*1000)})+"\n")
+                    _debug_log("storage.py:24", "Using Path.home()", "C", {"path":str(self.storage_path)})
                 except: pass
                 # #endregion
         except Exception as e:
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:28","message":"Path creation failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("storage.py:28", "Path creation failed", "C", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
             raise
@@ -53,8 +64,7 @@ class Storage:
         }
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:35","message":"Storage.__init__() completed","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("storage.py:35", "Storage.__init__() completed", "C", {})
         except: pass
         # #endregion
     
