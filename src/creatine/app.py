@@ -107,6 +107,12 @@ except Exception as e:
 
 
 class CreatineWaterReminder(toga.App):
+    def __init__(self):
+        super().__init__(
+            formal_name="Creatine Water Reminder",
+            app_id="com.onur.creatine"
+        )
+    
     def startup(self):
         """Uygulama başlangıcı"""
         print("[DEBUG] startup() method called", file=sys.stderr, flush=True)
@@ -174,7 +180,7 @@ class CreatineWaterReminder(toga.App):
         # Ana container
         print("[DEBUG] Creating main_box...", file=sys.stderr, flush=True)
         try:
-            main_box = toga.Box(style=Pack(direction=COLUMN, padding=20, flex=1))
+            main_box = toga.Box(style=Pack(direction=COLUMN, margin=20, flex=1))
             print("[DEBUG] main_box created", file=sys.stderr, flush=True)
             # #region agent log
             try:
@@ -192,14 +198,14 @@ class CreatineWaterReminder(toga.App):
             # #endregion
             # Don't raise - create minimal UI instead
             print("[DEBUG] Creating minimal fallback UI", file=sys.stderr, flush=True)
-            main_box = toga.Box(style=Pack(direction=COLUMN, padding=20))
-            error_label = toga.Label("Uygulama başlatılamadı. Lütfen yeniden deneyin.", style=Pack(padding=20))
+            main_box = toga.Box(style=Pack(direction=COLUMN, margin=20))
+            error_label = toga.Label("Uygulama başlatılamadı. Lütfen yeniden deneyin.", style=Pack(margin=20))
             main_box.add(error_label)
         
         # Başlık
         title = toga.Label(
             "Creatine Water Reminder",
-            style=Pack(font_size=24, font_weight="bold", padding_bottom=20, text_align=CENTER)
+            style=Pack(font_size=24, font_weight="bold", margin_bottom=20, text_align=CENTER)
         )
         main_box.add(title)
         
@@ -207,7 +213,7 @@ class CreatineWaterReminder(toga.App):
         self.notification_switch = toga.Switch(
             "Su Bildirimleri",
             on_change=self.on_notification_toggle,
-            style=Pack(padding=10)
+            style=Pack(margin=10)
         )
         self.notification_switch.value = self.storage.get_notifications_enabled() if self.storage else True
         main_box.add(self.notification_switch)
@@ -216,7 +222,7 @@ class CreatineWaterReminder(toga.App):
         self.school_mode_switch = toga.Switch(
             "Okuldayım",
             on_change=self.on_school_mode_toggle,
-            style=Pack(padding=10)
+            style=Pack(margin=10)
         )
         self.school_mode_switch.value = self.storage.get_school_mode() if self.storage else False
         main_box.add(self.school_mode_switch)
@@ -224,14 +230,14 @@ class CreatineWaterReminder(toga.App):
         # Bugünün Antrenmanı başlığı
         workout_title = toga.Label(
             "Bugünün Antrenmanı",
-            style=Pack(font_size=18, font_weight="bold", padding_top=20, padding_bottom=10)
+            style=Pack(font_size=18, font_weight="bold", margin_top=20, margin_bottom=10)
         )
         main_box.add(workout_title)
         
         # Antrenman listesi
         self.workout_list = toga.MultilineTextInput(
             readonly=True,
-            style=Pack(flex=1, padding=10, min_height=300)
+            style=Pack(flex=1, margin=10, height=300)
         )
         self.update_workout_display()
         main_box.add(self.workout_list)
@@ -281,8 +287,8 @@ class CreatineWaterReminder(toga.App):
             print("[DEBUG] Trying minimal window fallback", file=sys.stderr, flush=True)
             try:
                 self.main_window = toga.MainWindow(title="Creatine Water Reminder", size=(400, 200))
-                error_box = toga.Box(style=Pack(direction=COLUMN, padding=20))
-                error_label = toga.Label(f"Hata: {str(e)}", style=Pack(padding=10))
+                error_box = toga.Box(style=Pack(direction=COLUMN, margin=20))
+                error_label = toga.Label(f"Hata: {str(e)}", style=Pack(margin=10))
                 error_box.add(error_label)
                 self.main_window.content = error_box
                 self.main_window.show()
