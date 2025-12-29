@@ -2,10 +2,22 @@
 iOS bildirim yönetimi
 """
 # #region agent log
-import json, time, traceback
+import json, time, traceback, os
+def _debug_log(location, message, hypothesis_id, data=None):
+    try:
+        if hasattr(os, 'environ') and 'HOME' in os.environ:
+            log_path = os.path.join(os.environ['HOME'], 'Documents', 'debug.log')
+        else:
+            try:
+                log_path = os.path.join(os.path.expanduser('~'), 'Documents', 'debug.log')
+            except:
+                log_path = 'debug.log'
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":hypothesis_id,"location":location,"message":message,"data":data or {},"timestamp":int(time.time()*1000)})+"\n")
+    except Exception as e:
+        print(f"DEBUG LOG ERROR: {e}")
 try:
-    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"notifications.py:5","message":"notifications.py module loading","data":{},"timestamp":int(time.time()*1000)})+"\n")
+    _debug_log("notifications.py:5", "notifications.py module loading", "D", {})
 except: pass
 # #endregion
 import platform
@@ -57,8 +69,7 @@ class NotificationManager:
     def __init__(self):
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"notifications.py:45","message":"NotificationManager.__init__() called","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("notifications.py:45", "NotificationManager.__init__() called", "D", {})
         except: pass
         # #endregion
         self.notification_center = None
@@ -68,8 +79,7 @@ class NotificationManager:
         # self._initialize_notification_center()
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"notifications.py:52","message":"NotificationManager.__init__() completed","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("notifications.py:52", "NotificationManager.__init__() completed", "D", {})
         except: pass
         # #endregion
     
