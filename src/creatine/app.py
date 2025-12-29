@@ -2,17 +2,30 @@
 Creatine Water Reminder - Ana uygulama dosyası
 """
 # #region agent log
-import json, time, traceback
+import json, time, traceback, os
+def _debug_log(location, message, hypothesis_id, data=None):
+    try:
+        if hasattr(os, 'environ') and 'HOME' in os.environ:
+            log_path = os.path.join(os.environ['HOME'], 'Documents', 'debug.log')
+        else:
+            try:
+                log_path = os.path.join(os.path.expanduser('~'), 'Documents', 'debug.log')
+            except:
+                log_path = 'debug.log'  # Fallback to current directory
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":hypothesis_id,"location":location,"message":message,"data":data or {},"timestamp":int(time.time()*1000)})+"\n")
+    except Exception as e:
+        print(f"DEBUG LOG ERROR: {e}")
+        import traceback
+        print(traceback.format_exc())
 try:
-    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"app.py:8","message":"Module import start","data":{},"timestamp":int(time.time()*1000)})+"\n")
+    _debug_log("app.py:8", "Module import start", "A")
 except: pass
 # #endregion
 import toga
 # #region agent log
 try:
-    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"app.py:12","message":"toga imported","data":{},"timestamp":int(time.time()*1000)})+"\n")
+    _debug_log("app.py:12", "toga imported", "A")
 except: pass
 # #endregion
 from toga.style import Pack
@@ -21,46 +34,40 @@ from datetime import datetime
 
 # #region agent log
 try:
-    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"app.py:18","message":"Before storage import","data":{},"timestamp":int(time.time()*1000)})+"\n")
+    _debug_log("app.py:18", "Before storage import", "A")
 except: pass
 # #endregion
 try:
     from .storage import Storage
     # #region agent log
     try:
-        with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"app.py:22","message":"Storage imported","data":{},"timestamp":int(time.time()*1000)})+"\n")
+        _debug_log("app.py:22", "Storage imported", "A")
     except: pass
     # #endregion
 except Exception as e:
     # #region agent log
     try:
-        with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"app.py:26","message":"Storage import failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+        _debug_log("app.py:26", "Storage import failed", "A", {"error":str(e),"traceback":traceback.format_exc()})
     except: pass
     # #endregion
     Storage = None
 
 # #region agent log
 try:
-    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"app.py:30","message":"Before notifications import","data":{},"timestamp":int(time.time()*1000)})+"\n")
+    _debug_log("app.py:30", "Before notifications import", "D", {})
 except: pass
 # #endregion
 try:
     from .notifications import NotificationManager
     # #region agent log
     try:
-        with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"app.py:34","message":"NotificationManager imported","data":{},"timestamp":int(time.time()*1000)})+"\n")
+        _debug_log("app.py:34", "NotificationManager imported", "D")
     except: pass
     # #endregion
 except Exception as e:
     # #region agent log
     try:
-        with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"app.py:38","message":"NotificationManager import failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+        _debug_log("app.py:38", "NotificationManager import failed", "D", {"error":str(e),"traceback":traceback.format_exc()})
     except: pass
     # #endregion
     NotificationManager = None
@@ -70,8 +77,7 @@ try:
 except Exception as e:
     # #region agent log
     try:
-        with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"app.py:46","message":"WorkoutManager import failed","data":{"error":str(e)},"timestamp":int(time.time()*1000)})+"\n")
+        _debug_log("app.py:46", "WorkoutManager import failed", "A", {"error":str(e)})
     except: pass
     # #endregion
     WorkoutManager = None
@@ -82,29 +88,25 @@ class CreatineWaterReminder(toga.App):
         """Uygulama başlangıcı"""
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:52","message":"startup() called","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("app.py:52", "startup() called", "B", {})
         except: pass
         # #endregion
         try:
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"app.py:56","message":"Before Storage() init","data":{},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:56", "Before Storage() init", "C", {})
             except: pass
             # #endregion
             self.storage = Storage() if Storage else None
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"app.py:60","message":"Storage() created","data":{"storage":str(self.storage)},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:60", "Storage() created", "C", {"storage":str(self.storage)})
             except: pass
             # #endregion
         except Exception as e:
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"app.py:64","message":"Storage init failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:64", "Storage init failed", "C", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
             print(f"Storage başlatılamadı: {e}")
@@ -114,22 +116,19 @@ class CreatineWaterReminder(toga.App):
         try:
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"app.py:70","message":"Before NotificationManager() init","data":{},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:70", "Before NotificationManager() init", "D", {})
             except: pass
             # #endregion
             self.notification_manager = NotificationManager() if NotificationManager else None
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"app.py:74","message":"NotificationManager() created","data":{"manager":str(self.notification_manager)},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:74", "NotificationManager() created", "D", {"manager":str(self.notification_manager)})
             except: pass
             # #endregion
         except Exception as e:
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"app.py:78","message":"NotificationManager init failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:78", "NotificationManager init failed", "D", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
             print(f"NotificationManager başlatılamadı: {e}")
@@ -144,8 +143,7 @@ class CreatineWaterReminder(toga.App):
         
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:87","message":"Before UI creation","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("app.py:87", "Before UI creation", "B", {})
         except: pass
         # #endregion
         # Ana container
@@ -153,15 +151,13 @@ class CreatineWaterReminder(toga.App):
             main_box = toga.Box(style=Pack(direction=COLUMN, padding=20, flex=1))
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:92","message":"main_box created","data":{},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:92", "main_box created", "B", {})
             except: pass
             # #endregion
         except Exception as e:
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:96","message":"main_box creation failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:96", "main_box creation failed", "B", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
             raise
@@ -211,37 +207,32 @@ class CreatineWaterReminder(toga.App):
         
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:140","message":"Before MainWindow creation","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("app.py:140", "Before MainWindow creation", "B", {})
         except: pass
         # #endregion
         try:
             self.main_window = toga.MainWindow(title=self.formal_name, size=(400, 700))
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:144","message":"MainWindow created","data":{},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:144", "MainWindow created", "B", {})
             except: pass
             # #endregion
             self.main_window.content = scroll
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:147","message":"Before window.show()","data":{},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:147", "Before window.show()", "B", {})
             except: pass
             # #endregion
             self.main_window.show()
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:150","message":"window.show() completed","data":{},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:150", "window.show() completed", "B", {})
             except: pass
             # #endregion
         except Exception as e:
             # #region agent log
             try:
-                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:153","message":"MainWindow/show failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+                _debug_log("app.py:153", "MainWindow/show failed", "B", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
             raise
@@ -250,8 +241,7 @@ class CreatineWaterReminder(toga.App):
         self.initialize_notifications()
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"app.py:160","message":"startup() completed","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("app.py:160", "startup() completed", "B", {})
         except: pass
         # #endregion
     
@@ -325,24 +315,21 @@ class CreatineWaterReminder(toga.App):
 def main():
     # #region agent log
     try:
-        with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"E","location":"app.py:200","message":"main() called","data":{},"timestamp":int(time.time()*1000)})+"\n")
+        _debug_log("app.py:200", "main() called", "E", {})
     except: pass
     # #endregion
     try:
         app = CreatineWaterReminder()
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"E","location":"app.py:205","message":"CreatineWaterReminder() created","data":{},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("app.py:205", "CreatineWaterReminder() created", "E", {})
         except: pass
         # #endregion
         return app
     except Exception as e:
         # #region agent log
         try:
-            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"E","location":"app.py:210","message":"main() failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+            _debug_log("app.py:210", "main() failed", "E", {"error":str(e),"traceback":traceback.format_exc()})
         except: pass
         # #endregion
         raise
