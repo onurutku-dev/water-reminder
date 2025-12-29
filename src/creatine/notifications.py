@@ -1,6 +1,13 @@
 """
 iOS bildirim yönetimi
 """
+# #region agent log
+import json, time, traceback
+try:
+    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"notifications.py:5","message":"notifications.py module loading","data":{},"timestamp":int(time.time()*1000)})+"\n")
+except: pass
+# #endregion
 import platform
 
 # iOS native sınıflarını lazy load et (crash olmasın)
@@ -48,11 +55,23 @@ class NotificationManager:
     """iOS local notification yönetimi"""
     
     def __init__(self):
+        # #region agent log
+        try:
+            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"notifications.py:45","message":"NotificationManager.__init__() called","data":{},"timestamp":int(time.time()*1000)})+"\n")
+        except: pass
+        # #endregion
         self.notification_center = None
         self.is_running = False
         self.is_paused = False
         # Başlatmayı geciktir - uygulama açılırken crash olmasın
         # self._initialize_notification_center()
+        # #region agent log
+        try:
+            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"notifications.py:52","message":"NotificationManager.__init__() completed","data":{},"timestamp":int(time.time()*1000)})+"\n")
+        except: pass
+        # #endregion
     
     def _initialize_notification_center(self):
         """iOS notification center'ı başlat"""
