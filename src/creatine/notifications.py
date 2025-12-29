@@ -3,32 +3,45 @@ iOS bildirim yönetimi
 """
 import platform
 
-# iOS native sınıflarını yükle
-try:
-    from rubicon.objc import ObjCClass
-    RUBICON_AVAILABLE = True
-except ImportError:
-    RUBICON_AVAILABLE = False
+# iOS native sınıflarını lazy load et (crash olmasın)
+UNUserNotificationCenter = None
+UNMutableNotificationContent = None
+UNTimeIntervalNotificationTrigger = None
+UNNotificationRequest = None
 
-# iOS native sınıflarını yükle
-if RUBICON_AVAILABLE and (platform.system() == 'Darwin' or hasattr(platform, 'ios')):
+_ios_classes_loaded = False
+
+def _load_ios_classes():
+    """iOS native sınıflarını yükle (lazy loading)"""
+    global UNUserNotificationCenter, UNMutableNotificationContent
+    global UNTimeIntervalNotificationTrigger, UNNotificationRequest, _ios_classes_loaded
+    
+    if _ios_classes_loaded:
+        return  # Zaten yüklendi
+    
+    _ios_classes_loaded = True
+    
     try:
-        # UNUserNotificationCenter ve ilgili sınıfları
-        UNUserNotificationCenter = ObjCClass('UNUserNotificationCenter')
-        UNMutableNotificationContent = ObjCClass('UNMutableNotificationContent')
-        UNTimeIntervalNotificationTrigger = ObjCClass('UNTimeIntervalNotificationTrigger')
-        UNNotificationRequest = ObjCClass('UNNotificationRequest')
-    except Exception:
-        # Simülatör veya test ortamında olabilir
-        UNUserNotificationCenter = None
-        UNMutableNotificationContent = None
-        UNTimeIntervalNotificationTrigger = None
-        UNNotificationRequest = None
-else:
-    UNUserNotificationCenter = None
-    UNMutableNotificationContent = None
-    UNTimeIntervalNotificationTrigger = None
-    UNNotificationRequest = None
+        from rubicon.objc import ObjCClass
+        RUBICON_AVAILABLE = True
+    except ImportError:
+        RUBICON_AVAILABLE = False
+        return
+    
+    if RUBICON_AVAILABLE and (platform.system() == 'Darwin' or hasattr(platform, 'ios')):
+        try:
+            # UNUserNotificationCenter ve ilgili sınıfları
+            UNUserNotificationCenter = ObjCClass('UNUserNotificationCenter')
+            UNMutableNotificationContent = ObjCClass('UNMutableNotificationContent')
+            UNTimeIntervalNotificationTrigger = ObjCClass('UNTimeIntervalNotificationTrigger')
+            UNNotificationRequest = ObjCClass('UNNotificationRequest')
+        except Exception as e:
+            # Simülatör veya test ortamında olabilir
+            print(f"iOS sınıfları yüklenemedi: {e}")
+            UNUserNotificationCenter = None
+            UNMutableNotificationContent = None
+            UNTimeIntervalNotificationTrigger = None
+            UNNotificationRequest = None
 
 
 class NotificationManager:
@@ -38,17 +51,23 @@ class NotificationManager:
         self.notification_center = None
         self.is_running = False
         self.is_paused = False
-        self._initialize_notification_center()
+        # Başlatmayı geciktir - uygulama açılırken crash olmasın
+        # self._initialize_notification_center()
     
     def _initialize_notification_center(self):
         """iOS notification center'ı başlat"""
         try:
+            # Önce iOS sınıflarını yükle
+            _load_ios_classes()
+            
             if UNUserNotificationCenter:
                 self.notification_center = UNUserNotificationCenter.currentNotificationCenter()
-                # İzin iste
-                self._request_permission()
+                # İzin iste (async, crash yapmasın)
+                # self._request_permission()
         except Exception as e:
             print(f"Notification center başlatılamadı: {e}")
+            # Hata olsa bile uygulama çalışmaya devam etsin
+            self.notification_center = None
     
     def _request_permission(self):
         """Bildirim izni iste"""
@@ -81,8 +100,19 @@ class NotificationManager:
             # Zaten çalışıyor
             return
         
+        # Notification center yoksa başlatmayı dene
+        if not self.notification_center:
+            self._initialize_notification_center()
+        
         if not self.notification_center:
             print("Notification center mevcut değil")
+            return
+        
+        # iOS sınıflarının yüklü olduğundan emin ol
+        _load_ios_classes()
+        
+        if not UNMutableNotificationContent or not UNTimeIntervalNotificationTrigger:
+            print("iOS notification sınıfları yüklenemedi")
             return
         
         try:
