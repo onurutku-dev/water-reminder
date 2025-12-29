@@ -70,9 +70,24 @@ jobs:
     - name: Find IPA file
       id: find_ipa
       run: |
+        echo "Searching for IPA files..."
+        find . -name "*.ipa" -type f
         IPA_PATH=$(find . -name "*.ipa" -type f | head -n 1)
-        echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
-        echo "Found IPA: $IPA_PATH"
+        if [ -z "$IPA_PATH" ]; then
+          echo "IPA file not found, checking iOS directory..."
+          find iOS -type f -name "*.ipa" 2>/dev/null || echo "No IPA in iOS directory"
+          # Briefcase genellikle iOS klasöründe oluşturur
+          IPA_PATH=$(find iOS -name "*.ipa" -type f | head -n 1)
+        fi
+        if [ -n "$IPA_PATH" ]; then
+          echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+          echo "Found IPA: $IPA_PATH"
+        else
+          echo "ERROR: No IPA file found!"
+          echo "Listing iOS directory contents:"
+          ls -la iOS/ 2>/dev/null || echo "iOS directory not found"
+          exit 1
+        fi
     
     - name: Upload IPA artifact
       uses: actions/upload-artifact@v4
@@ -80,4 +95,5 @@ jobs:
         name: creatine-water-reminder-ipa
         path: ${{ steps.find_ipa.outputs.ipa_path }}
         retention-days: 30
+        if-no-files-found: error
 
