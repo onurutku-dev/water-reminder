@@ -108,10 +108,18 @@ except Exception as e:
 
 class CreatineWaterReminder(toga.App):
     def __init__(self):
-        super().__init__(
-            formal_name="Creatine Water Reminder",
-            app_id="com.onur.creatine"
-        )
+        print("[DEBUG] CreatineWaterReminder.__init__() called", file=sys.stderr, flush=True)
+        try:
+            super().__init__(
+                formal_name="Creatine Water Reminder",
+                app_id="com.onur.creatine"
+            )
+            print("[DEBUG] super().__init__() completed", file=sys.stderr, flush=True)
+        except Exception as e:
+            print(f"[DEBUG] ERROR in super().__init__(): {e}", file=sys.stderr, flush=True)
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
+            raise
     
     def startup(self):
         """Uygulama başlangıcı"""
@@ -122,25 +130,35 @@ class CreatineWaterReminder(toga.App):
         except Exception as e:
             print(f"[DEBUG] Log failed in startup(): {e}", file=sys.stderr, flush=True)
         # #endregion
+        
+        # iOS'ta crash'i önlemek için tüm işlemleri try-except ile sarmala
         try:
             # #region agent log
             try:
                 _debug_log("app.py:56", "Before Storage() init", "C", {})
             except: pass
             # #endregion
-            self.storage = Storage() if Storage else None
+            print("[DEBUG] Initializing Storage...", file=sys.stderr, flush=True)
+            if Storage:
+                self.storage = Storage()
+                print("[DEBUG] Storage initialized", file=sys.stderr, flush=True)
+            else:
+                print("[DEBUG] Storage class is None, using None", file=sys.stderr, flush=True)
+                self.storage = None
             # #region agent log
             try:
                 _debug_log("app.py:60", "Storage() created", "C", {"storage":str(self.storage)})
             except: pass
             # #endregion
         except Exception as e:
+            print(f"[DEBUG] Storage init failed: {e}", file=sys.stderr, flush=True)
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:64", "Storage init failed", "C", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
-            print(f"Storage başlatılamadı: {e}")
             # Basit fallback storage
             self.storage = None
         
@@ -150,26 +168,42 @@ class CreatineWaterReminder(toga.App):
                 _debug_log("app.py:70", "Before NotificationManager() init", "D", {})
             except: pass
             # #endregion
-            self.notification_manager = NotificationManager() if NotificationManager else None
+            print("[DEBUG] Initializing NotificationManager...", file=sys.stderr, flush=True)
+            if NotificationManager:
+                self.notification_manager = NotificationManager()
+                print("[DEBUG] NotificationManager initialized", file=sys.stderr, flush=True)
+            else:
+                print("[DEBUG] NotificationManager class is None, using None", file=sys.stderr, flush=True)
+                self.notification_manager = None
             # #region agent log
             try:
                 _debug_log("app.py:74", "NotificationManager() created", "D", {"manager":str(self.notification_manager)})
             except: pass
             # #endregion
         except Exception as e:
+            print(f"[DEBUG] NotificationManager init failed: {e}", file=sys.stderr, flush=True)
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:78", "NotificationManager init failed", "D", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
-            print(f"NotificationManager başlatılamadı: {e}")
             # Bildirimler olmadan da çalışsın
             self.notification_manager = None
         
         try:
-            self.workout_manager = WorkoutManager() if WorkoutManager else None
+            print("[DEBUG] Initializing WorkoutManager...", file=sys.stderr, flush=True)
+            if WorkoutManager:
+                self.workout_manager = WorkoutManager()
+                print("[DEBUG] WorkoutManager initialized", file=sys.stderr, flush=True)
+            else:
+                print("[DEBUG] WorkoutManager class is None, using None", file=sys.stderr, flush=True)
+                self.workout_manager = None
         except Exception as e:
-            print(f"WorkoutManager başlatılamadı: {e}")
+            print(f"[DEBUG] WorkoutManager init failed: {e}", file=sys.stderr, flush=True)
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
             self.workout_manager = None
         
         # #region agent log
@@ -379,6 +413,16 @@ def main():
     except Exception as e:
         print(f"[DEBUG] Log failed in main(): {e}", file=sys.stderr, flush=True)
     # #endregion
+    
+    # iOS'ta çok erken crash olmasını önlemek için tüm import'ları burada kontrol et
+    print("[DEBUG] Checking imports...", file=sys.stderr, flush=True)
+    if Storage is None:
+        print("[DEBUG] WARNING: Storage is None, will use fallback", file=sys.stderr, flush=True)
+    if NotificationManager is None:
+        print("[DEBUG] WARNING: NotificationManager is None, will use fallback", file=sys.stderr, flush=True)
+    if WorkoutManager is None:
+        print("[DEBUG] WARNING: WorkoutManager is None, will use fallback", file=sys.stderr, flush=True)
+    
     try:
         print("[DEBUG] Creating CreatineWaterReminder instance...", file=sys.stderr, flush=True)
         app = CreatineWaterReminder()
@@ -392,18 +436,52 @@ def main():
     except Exception as e:
         print(f"[DEBUG] ERROR in main(): {e}", file=sys.stderr, flush=True)
         import traceback
-        print(traceback.format_exc(), file=sys.stderr, flush=True)
+        tb_str = traceback.format_exc()
+        print(tb_str, file=sys.stderr, flush=True)
         # #region agent log
         try:
-            _debug_log("app.py:210", "main() failed", "E", {"error":str(e),"traceback":traceback.format_exc()})
+            _debug_log("app.py:210", "main() failed", "E", {"error":str(e),"traceback":tb_str})
         except: pass
         # #endregion
-        # Don't raise - return None instead to prevent crash
-        print("[DEBUG] Returning None instead of raising exception", file=sys.stderr, flush=True)
-        return None
+        
+        # iOS'ta crash'i önlemek için minimal bir app döndür
+        print("[DEBUG] Creating minimal fallback app", file=sys.stderr, flush=True)
+        try:
+            class MinimalApp(toga.App):
+                def __init__(self):
+                    super().__init__(
+                        formal_name="Creatine Water Reminder",
+                        app_id="com.onur.creatine"
+                    )
+                def startup(self):
+                    main_box = toga.Box(style=Pack(direction=COLUMN, margin=20))
+                    error_label = toga.Label(
+                        f"Uygulama başlatılamadı.\nHata: {str(e)}\n\nLütfen uygulamayı yeniden başlatın.",
+                        style=Pack(margin=10)
+                    )
+                    main_box.add(error_label)
+                    self.main_window = toga.MainWindow(title="Hata", size=(400, 300))
+                    self.main_window.content = main_box
+                    self.main_window.show()
+            
+            fallback_app = MinimalApp()
+            print("[DEBUG] Fallback app created", file=sys.stderr, flush=True)
+            return fallback_app
+        except Exception as e2:
+            print(f"[DEBUG] Fallback app also failed: {e2}", file=sys.stderr, flush=True)
+            # Son çare: None döndür (Briefcase handle edecek)
+            return None
 
 
 if __name__ == "__main__":
-    app = main()
-    app.main_loop()
+    try:
+        app = main()
+        if app is None:
+            print("[DEBUG] main() returned None, cannot start app", file=sys.stderr, flush=True)
+        else:
+            app.main_loop()
+    except Exception as e:
+        print(f"[DEBUG] FATAL ERROR in __main__: {e}", file=sys.stderr, flush=True)
+        import traceback
+        print(traceback.format_exc(), file=sys.stderr, flush=True)
 
