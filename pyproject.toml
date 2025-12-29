@@ -14,7 +14,7 @@ author_email = "onur@example.com"
 [tool.briefcase.app.creatine]
 formal_name = "Creatine Water Reminder"
 description = "Su içme hatırlatıcısı ve antrenman planı"
-external_package_path = "src/creatine"
+sources = ["creatine"]
 requires = [
     "toga>=0.3.1",
 ]
