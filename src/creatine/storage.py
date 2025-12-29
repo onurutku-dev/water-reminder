@@ -10,19 +10,53 @@ class Storage:
     """Kullanıcı ayarlarını JSON dosyasında saklar"""
     
     def __init__(self):
+        # #region agent log
+        import json, time, traceback
+        try:
+            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:13","message":"Storage.__init__() called","data":{},"timestamp":int(time.time()*1000)})+"\n")
+        except: pass
+        # #endregion
         # iOS için Documents dizini
-        if hasattr(os, 'environ') and 'HOME' in os.environ:
-            # iOS simülatör veya gerçek cihaz
-            self.storage_path = Path(os.environ['HOME']) / 'Documents' / 'creatine_settings.json'
-        else:
-            # Fallback
-            self.storage_path = Path.home() / 'Documents' / 'creatine_settings.json'
+        try:
+            if hasattr(os, 'environ') and 'HOME' in os.environ:
+                # iOS simülatör veya gerçek cihaz
+                self.storage_path = Path(os.environ['HOME']) / 'Documents' / 'creatine_settings.json'
+                # #region agent log
+                try:
+                    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:19","message":"Using HOME env","data":{"path":str(self.storage_path)},"timestamp":int(time.time()*1000)})+"\n")
+                except: pass
+                # #endregion
+            else:
+                # Fallback
+                self.storage_path = Path.home() / 'Documents' / 'creatine_settings.json'
+                # #region agent log
+                try:
+                    with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:24","message":"Using Path.home()","data":{"path":str(self.storage_path)},"timestamp":int(time.time()*1000)})+"\n")
+                except: pass
+                # #endregion
+        except Exception as e:
+            # #region agent log
+            try:
+                with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:28","message":"Path creation failed","data":{"error":str(e),"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000)})+"\n")
+            except: pass
+            # #endregion
+            raise
         
         # Varsayılan ayarlar
         self.default_settings = {
             'notifications_enabled': True,
             'school_mode': False
         }
+        # #region agent log
+        try:
+            with open(r"c:\Users\admin\Desktop\New folder (5)\.cursor\debug.log", "a", encoding="utf-8") as f:
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"storage.py:35","message":"Storage.__init__() completed","data":{},"timestamp":int(time.time()*1000)})+"\n")
+        except: pass
+        # #endregion
     
     def _load_settings(self):
         """Ayarları yükle"""
