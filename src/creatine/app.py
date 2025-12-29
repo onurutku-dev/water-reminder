@@ -2,32 +2,55 @@
 Creatine Water Reminder - Ana uygulama dosyası
 """
 # #region agent log
-import json, time, traceback, os
+import json, time, traceback, os, sys
 def _debug_log(location, message, hypothesis_id, data=None):
     try:
-        if hasattr(os, 'environ') and 'HOME' in os.environ:
-            log_path = os.path.join(os.environ['HOME'], 'Documents', 'debug.log')
-        else:
-            try:
-                log_path = os.path.join(os.path.expanduser('~'), 'Documents', 'debug.log')
-            except:
-                log_path = 'debug.log'  # Fallback to current directory
-        with open(log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":hypothesis_id,"location":location,"message":message,"data":data or {},"timestamp":int(time.time()*1000)})+"\n")
+        # Print to console first (iOS Xcode console'da görülebilir)
+        print(f"[DEBUG {hypothesis_id}] {location}: {message}", file=sys.stderr, flush=True)
+        if data:
+            print(f"  Data: {data}", file=sys.stderr, flush=True)
+        
+        # Also try to write to file
+        try:
+            if hasattr(os, 'environ') and 'HOME' in os.environ:
+                log_path = os.path.join(os.environ['HOME'], 'Documents', 'debug.log')
+            else:
+                try:
+                    log_path = os.path.join(os.path.expanduser('~'), 'Documents', 'debug.log')
+                except:
+                    log_path = 'debug.log'
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":hypothesis_id,"location":location,"message":message,"data":data or {},"timestamp":int(time.time()*1000)})+"\n")
+        except Exception as file_err:
+            print(f"[DEBUG] File write failed: {file_err}", file=sys.stderr, flush=True)
     except Exception as e:
-        print(f"DEBUG LOG ERROR: {e}")
-        import traceback
-        print(traceback.format_exc())
+        print(f"[DEBUG] LOG ERROR: {e}", file=sys.stderr, flush=True)
+        try:
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
+        except:
+            pass
+
+print("[DEBUG] app.py module loading started", file=sys.stderr, flush=True)
 try:
     _debug_log("app.py:8", "Module import start", "A")
-except: pass
+except Exception as e:
+    print(f"[DEBUG] Initial log failed: {e}", file=sys.stderr, flush=True)
 # #endregion
-import toga
-# #region agent log
+print("[DEBUG] About to import toga", file=sys.stderr, flush=True)
 try:
-    _debug_log("app.py:12", "toga imported", "A")
-except: pass
-# #endregion
+    import toga
+    print("[DEBUG] toga imported successfully", file=sys.stderr, flush=True)
+    # #region agent log
+    try:
+        _debug_log("app.py:12", "toga imported", "A")
+    except: pass
+    # #endregion
+except Exception as e:
+    print(f"[DEBUG] ERROR importing toga: {e}", file=sys.stderr, flush=True)
+    import traceback
+    print(traceback.format_exc(), file=sys.stderr, flush=True)
+    raise
 from toga.style import Pack
 from toga.style.pack import COLUMN, ROW, CENTER
 from datetime import datetime
@@ -86,10 +109,12 @@ except Exception as e:
 class CreatineWaterReminder(toga.App):
     def startup(self):
         """Uygulama başlangıcı"""
+        print("[DEBUG] startup() method called", file=sys.stderr, flush=True)
         # #region agent log
         try:
             _debug_log("app.py:52", "startup() called", "B", {})
-        except: pass
+        except Exception as e:
+            print(f"[DEBUG] Log failed in startup(): {e}", file=sys.stderr, flush=True)
         # #endregion
         try:
             # #region agent log
@@ -147,20 +172,29 @@ class CreatineWaterReminder(toga.App):
         except: pass
         # #endregion
         # Ana container
+        print("[DEBUG] Creating main_box...", file=sys.stderr, flush=True)
         try:
             main_box = toga.Box(style=Pack(direction=COLUMN, padding=20, flex=1))
+            print("[DEBUG] main_box created", file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:92", "main_box created", "B", {})
             except: pass
             # #endregion
         except Exception as e:
+            print(f"[DEBUG] ERROR creating main_box: {e}", file=sys.stderr, flush=True)
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:96", "main_box creation failed", "B", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
-            raise
+            # Don't raise - create minimal UI instead
+            print("[DEBUG] Creating minimal fallback UI", file=sys.stderr, flush=True)
+            main_box = toga.Box(style=Pack(direction=COLUMN, padding=20))
+            error_label = toga.Label("Uygulama başlatılamadı. Lütfen yeniden deneyin.", style=Pack(padding=20))
+            main_box.add(error_label)
         
         # Başlık
         title = toga.Label(
@@ -210,32 +244,51 @@ class CreatineWaterReminder(toga.App):
             _debug_log("app.py:140", "Before MainWindow creation", "B", {})
         except: pass
         # #endregion
+        print("[DEBUG] Creating MainWindow...", file=sys.stderr, flush=True)
         try:
             self.main_window = toga.MainWindow(title=self.formal_name, size=(400, 700))
+            print("[DEBUG] MainWindow created", file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:144", "MainWindow created", "B", {})
             except: pass
             # #endregion
+            print("[DEBUG] Setting window content...", file=sys.stderr, flush=True)
             self.main_window.content = scroll
+            print("[DEBUG] Calling window.show()...", file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:147", "Before window.show()", "B", {})
             except: pass
             # #endregion
             self.main_window.show()
+            print("[DEBUG] window.show() completed", file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:150", "window.show() completed", "B", {})
             except: pass
             # #endregion
         except Exception as e:
+            print(f"[DEBUG] ERROR in MainWindow/show: {e}", file=sys.stderr, flush=True)
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
             # #region agent log
             try:
                 _debug_log("app.py:153", "MainWindow/show failed", "B", {"error":str(e),"traceback":traceback.format_exc()})
             except: pass
             # #endregion
-            raise
+            # Don't raise - try to show minimal window
+            print("[DEBUG] Trying minimal window fallback", file=sys.stderr, flush=True)
+            try:
+                self.main_window = toga.MainWindow(title="Creatine Water Reminder", size=(400, 200))
+                error_box = toga.Box(style=Pack(direction=COLUMN, padding=20))
+                error_label = toga.Label(f"Hata: {str(e)}", style=Pack(padding=10))
+                error_box.add(error_label)
+                self.main_window.content = error_box
+                self.main_window.show()
+            except Exception as e2:
+                print(f"[DEBUG] Fallback window also failed: {e2}", file=sys.stderr, flush=True)
+                raise e  # Re-raise original error
         
         # Bildirimleri başlat
         self.initialize_notifications()
@@ -313,13 +366,17 @@ class CreatineWaterReminder(toga.App):
 
 
 def main():
+    print("[DEBUG] main() function called", file=sys.stderr, flush=True)
     # #region agent log
     try:
         _debug_log("app.py:200", "main() called", "E", {})
-    except: pass
+    except Exception as e:
+        print(f"[DEBUG] Log failed in main(): {e}", file=sys.stderr, flush=True)
     # #endregion
     try:
+        print("[DEBUG] Creating CreatineWaterReminder instance...", file=sys.stderr, flush=True)
         app = CreatineWaterReminder()
+        print("[DEBUG] CreatineWaterReminder created successfully", file=sys.stderr, flush=True)
         # #region agent log
         try:
             _debug_log("app.py:205", "CreatineWaterReminder() created", "E", {})
@@ -327,12 +384,17 @@ def main():
         # #endregion
         return app
     except Exception as e:
+        print(f"[DEBUG] ERROR in main(): {e}", file=sys.stderr, flush=True)
+        import traceback
+        print(traceback.format_exc(), file=sys.stderr, flush=True)
         # #region agent log
         try:
             _debug_log("app.py:210", "main() failed", "E", {"error":str(e),"traceback":traceback.format_exc()})
         except: pass
         # #endregion
-        raise
+        # Don't raise - return None instead to prevent crash
+        print("[DEBUG] Returning None instead of raising exception", file=sys.stderr, flush=True)
+        return None
 
 
 if __name__ == "__main__":
