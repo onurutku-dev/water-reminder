@@ -38,6 +38,7 @@ jobs:
     - name: Create iOS app
       run: |
         echo "Creating iOS app..."
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         briefcase create iOS || echo "Create command completed with status $?"
         echo "Checking iOS directory..."
         ls -la iOS/ 2>/dev/null || echo "iOS directory not found"
@@ -45,6 +46,7 @@ jobs:
     - name: Build iOS app
       run: |
         echo "Building iOS app..."
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         briefcase build iOS || echo "Build command completed with status $?"
         echo "Checking build output..."
         find iOS -name "*.app" -type d 2>/dev/null || echo "No .app found"
@@ -52,6 +54,7 @@ jobs:
     - name: Package iOS app (unsigned IPA)
       run: |
         echo "Packaging iOS app..."
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         # Briefcase package komutu (--unsign parametresi yok)
         # Önce Xcode projesinde imza ayarlarını kontrol et ve gerekirse devre dışı bırak
         if [ -f "iOS/CreatineWaterReminder/CreatineWaterReminder.xcodeproj/project.pbxproj" ]; then
