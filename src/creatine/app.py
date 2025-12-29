@@ -14,9 +14,25 @@ from .workouts import WorkoutManager
 class CreatineWaterReminder(toga.App):
     def startup(self):
         """Uygulama başlangıcı"""
-        self.storage = Storage()
-        self.notification_manager = NotificationManager()
-        self.workout_manager = WorkoutManager()
+        try:
+            self.storage = Storage()
+        except Exception as e:
+            print(f"Storage başlatılamadı: {e}")
+            # Basit fallback storage
+            self.storage = None
+        
+        try:
+            self.notification_manager = NotificationManager()
+        except Exception as e:
+            print(f"NotificationManager başlatılamadı: {e}")
+            # Bildirimler olmadan da çalışsın
+            self.notification_manager = None
+        
+        try:
+            self.workout_manager = WorkoutManager()
+        except Exception as e:
+            print(f"WorkoutManager başlatılamadı: {e}")
+            self.workout_manager = None
         
         # Ana container
         main_box = toga.Box(style=Pack(direction=COLUMN, padding=20, flex=1))
@@ -34,7 +50,7 @@ class CreatineWaterReminder(toga.App):
             on_change=self.on_notification_toggle,
             style=Pack(padding=10)
         )
-        self.notification_switch.value = self.storage.get_notifications_enabled()
+        self.notification_switch.value = self.storage.get_notifications_enabled() if self.storage else True
         main_box.add(self.notification_switch)
         
         # Okul Modu Switch
@@ -43,7 +59,7 @@ class CreatineWaterReminder(toga.App):
             on_change=self.on_school_mode_toggle,
             style=Pack(padding=10)
         )
-        self.school_mode_switch.value = self.storage.get_school_mode()
+        self.school_mode_switch.value = self.storage.get_school_mode() if self.storage else False
         main_box.add(self.school_mode_switch)
         
         # Bugünün Antrenmanı başlığı
@@ -73,34 +89,56 @@ class CreatineWaterReminder(toga.App):
     
     def on_notification_toggle(self, widget):
         """Bildirim switch değiştiğinde"""
-        enabled = widget.value
-        self.storage.set_notifications_enabled(enabled)
-        
-        if enabled and not self.storage.get_school_mode():
-            self.notification_manager.start_notifications()
-        else:
-            self.notification_manager.stop_notifications()
+        try:
+            enabled = widget.value
+            if self.storage:
+                self.storage.set_notifications_enabled(enabled)
+            
+            if self.notification_manager:
+                if enabled:
+                    # Bildirim manager'ı şimdi başlat
+                    self.notification_manager._initialize_notification_center()
+                    if not (self.storage and self.storage.get_school_mode()):
+                        self.notification_manager.start_notifications()
+                else:
+                    self.notification_manager.stop_notifications()
+        except Exception as e:
+            print(f"Bildirim toggle hatası: {e}")
     
     def on_school_mode_toggle(self, widget):
         """Okul modu switch değiştiğinde"""
-        school_mode = widget.value
-        self.storage.set_school_mode(school_mode)
-        
-        if school_mode:
-            # Okul modu açıldı - bildirimleri durdur
-            self.notification_manager.pause_notifications()
-        else:
-            # Okul modu kapandı - bildirimler açıksa devam et
-            if self.storage.get_notifications_enabled():
-                self.notification_manager.resume_notifications()
+        try:
+            school_mode = widget.value
+            if self.storage:
+                self.storage.set_school_mode(school_mode)
+            
+            if self.notification_manager:
+                if school_mode:
+                    # Okul modu açıldı - bildirimleri durdur
+                    self.notification_manager.pause_notifications()
+                else:
+                    # Okul modu kapandı - bildirimler açıksa devam et
+                    if self.storage and self.storage.get_notifications_enabled():
+                        self.notification_manager.resume_notifications()
+        except Exception as e:
+            print(f"Okul modu toggle hatası: {e}")
     
     def initialize_notifications(self):
         """Bildirimleri başlat"""
-        if self.storage.get_notifications_enabled() and not self.storage.get_school_mode():
-            self.notification_manager.start_notifications()
+        try:
+            if self.storage and self.storage.get_notifications_enabled() and not self.storage.get_school_mode():
+                if self.notification_manager:
+                    self.notification_manager._initialize_notification_center()
+                    self.notification_manager.start_notifications()
+        except Exception as e:
+            print(f"Bildirim başlatma hatası: {e}")
     
     def update_workout_display(self):
         """Bugünün antrenmanını göster"""
+        if not self.workout_manager:
+            self.workout_list.value = "Antrenman planı yüklenemedi."
+            return
+        
         today_workout = self.workout_manager.get_today_workout()
         if today_workout:
             display_text = f"{today_workout['day']} – {today_workout['type']}\n"
