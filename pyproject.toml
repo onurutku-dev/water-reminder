@@ -10,12 +10,11 @@ license = {text = "MIT"}
 author = "Onur"
 author_email = "onur@example.com"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
 
 [tool.briefcase.app.creatine]
 formal_name = "Creatine Water Reminder"
 description = "Su içme hatırlatıcısı ve antrenman planı"
+external_package_path = "src/creatine"
 requires = [
     "toga>=0.3.1",
 ]
